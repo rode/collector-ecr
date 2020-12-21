@@ -1,0 +1,50 @@
+apiVersion: skaffold/v2alpha1
+kind: Config
+build:
+  artifacts:
+  - image: collector-ecr
+deploy:
+  helm:
+    releases:
+    - name: collector-ecr
+      chartPath: charts/collector-ecr
+      wait: true
+      setValues:
+        imagePullPolicy: IfNotPresent
+      values:
+        image: collector-ecr
+      setValueTemplates:
+        ingress.domain: "{{if .INGRESS_DOMAIN}}{{.INGRESS_DOMAIN}}{{else}}local{{end}}"
+        #istioDomain: "{{.ISTIO_DOMAIN}}"
+        productName: "{{.PRODUCT_NAME}}"
+      imageStrategy:
+        helm: {}
+profiles:
+- name: local
+  activation:
+    - kubeContext: docker-for-desktop
+    - kubeContext: docker-desktop
+  build:
+    artifacts:
+    - image: collector-ecr
+    local:
+      useBuildkit: true
+  portForward:
+    - resourceType: deployment
+      resourceName: collector-ecr
+      port: 3000
+      localPort: 3000
+  deploy:
+    helm:
+      releases:
+        - name: collector-ecr
+          chartPath: charts/collector-ecr
+          wait: true
+          setValues:
+            imagePullPolicy: IfNotPresent
+          values:
+            image: collector-ecr
+          setValueTemplates:
+            service.type: "NodePort"
+          imageStrategy:
+            helm: {}
