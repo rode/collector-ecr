@@ -29,6 +29,6 @@ FROM gcr.io/distroless/static:nonroot as runner
 WORKDIR /
 COPY --from=builder /workspace/collector-ecr .
 USER nonroot:nonroot
-
-ENTRYPOINT ["./collector-ecr"]
 EXPOSE 3000
+ENTRYPOINT ["./collector-ecr", "--debug"]
+

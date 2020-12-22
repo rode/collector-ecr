@@ -20,12 +20,12 @@ var (
 	rodeHost string
 )
 
-func hello(w http.ResponseWriter, r *http.Request) {
+func health(w http.ResponseWriter, r *http.Request) {
 	// Authorization or Authentication logic here
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	w.Write([]byte("hello world!!!"))
+	w.Write([]byte("healthy!!!"))
 }
 
 func main() {
@@ -52,7 +52,7 @@ func main() {
 	l := listener.NewListener(logger.Named("listener"), nil) // nil to be replaced with rodeClient
 	mux := http.NewServeMux()
 	mux.HandleFunc("/webhook/event", l.ProcessEvent)
-	mux.HandleFunc("/hello", hello)
+	mux.HandleFunc("/health", health)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
